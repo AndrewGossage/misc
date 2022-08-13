@@ -3,6 +3,7 @@ from inspect import signature
 count_arguments = lambda fun: len([i for i in str(signature(fun)).replace('(','').replace(')','').split(',') if i != ''])
 function = type(lambda:1)
 class Maybe:
+    """Maybe Monad implementing bind, unwrap, expect, etc."""
     def __init__(self, value, no_nest = True):
         self.value = value
         if type(self.value) == Maybe and no_nest == True: self.value = self.value.unwrap()
@@ -17,11 +18,13 @@ class Maybe:
 
 
     def bind(self, fun):
+        """This function will apply a lambda function to the contained value. It will return Maybe(None) or Maybe(Exception) on failure""" 
         try:
             return Maybe(fun(self.value)) if self.value != None else  Maybe(None)
         except Exception as err:
             return Maybe(err)
     def bind_or(self, fun, default, call = True):
+        """This function will apply a lambda function to the contained value. It will use a default value on failure""" 
         if type(default) != function or call == False:
             try:
                 return Maybe(fun(self.value)) if self.value != None else  Maybe(default)
@@ -88,7 +91,7 @@ class Iter:
     
     def map(self, fun, handle = None):
         out = []
-        if Maybe(ini).unwrap() == None: return Iter([Maybe(None)])
+        if Maybe(self.values).unwrap() == None: return Iter([Maybe(None)])
 
         count = -1
         for i in self.values.unwrap():
